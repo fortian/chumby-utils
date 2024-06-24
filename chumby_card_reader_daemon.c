@@ -196,7 +196,7 @@ static void remove_card_reader_quirk(void)
 		// Now write it back out
 		f = fopen(USB_STORAGE_QUIRKS_PATH, "wb");
 		if (f) {
-			fwrite(quirks, 1, strlen(quirks), f);
+			fputs(quirks, f);
 			fclose(f);
 		}
 	}
@@ -207,21 +207,29 @@ return_free:
 
 static void bind_card_reader(void)
 {
-	// Send stderr to /dev/null; we don't care if this fails
-	int r = system("echo " CARD_READER_USB_INTERFACE " > " USB_STORAGE_BIND_PATH " 2>/dev/null");
-	(void)r;
+	FILE *f = fopen(USB_STORAGE_BIND_PATH, "wb");
+	if (f) {
+		fprintf(f, "%s\n", CARD_READER_USB_INTERFACE);
+		fclose(f);
+	}
 }
 
 static void connect_card_reader(void)
 {
-	int r = system("echo 1 > " CARD_READER_AUTHORIZED_PATH);
-	(void)r;
+	FILE *f = fopen(CARD_READER_AUTHORIZED_PATH, "wb");
+	if (f) {
+		fputs("1\n", f);
+		fclose(f);
+	}
 }
 
 static void disconnect_card_reader(void)
 {
-	int r = system("echo 0 > " CARD_READER_AUTHORIZED_PATH);
-	(void)r;
+	FILE *f = fopen(CARD_READER_AUTHORIZED_PATH, "wb");
+	if (f) {
+		fputs("0\n", f);
+		fclose(f);
+	}
 }
 
 int main(int argc, char *argv[])
